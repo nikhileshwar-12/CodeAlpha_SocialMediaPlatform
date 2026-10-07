@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} · @{{ profile_user.username }}{% endblock %}
+
+{% block content %}
+<div class="narrow">
+  <nav class="breadcrumb"><a href="{% url 'accounts:profile' profile_user.username %}">@{{ profile_user.username }}</a> › {{ title }}</nav>
+  <div class="card">
+    <div class="tabs">
+      <a href="{% url 'accounts:followers' profile_user.username %}" class="{% if title == 'Followers' %}active{% endif %}">Followers</a>
+      <a href="{% url 'accounts:following' profile_user.username %}" class="{% if title == 'Following' %}active{% endif %}">Following</a>
+    </div>
+    {% for u in users %}
+      {% include "accounts/_user_card.html" with u=u %}
+    {% empty %}
+      <p class="muted center" style="padding:2rem 0">{% if title == 'Followers' %}No followers yet.{% else %}Not following anyone yet.{% endif %}</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

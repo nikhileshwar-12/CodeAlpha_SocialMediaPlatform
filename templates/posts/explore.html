@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Explore{% endblock %}
+
+{% block content %}
+{% if not user.is_authenticated %}
+<section class="hero">
+  <h1>Connect. Share. Discover.</h1>
+  <p>Connectly is a mini social network — post updates, follow friends, like and comment on what matters to you.</p>
+  <div class="hero-actions">
+    <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg">Get started — it's free</a>
+    <a href="{% url 'accounts:login' %}" class="btn btn-ghost btn-lg">Login</a>
+  </div>
+</section>
+{% endif %}
+<h2 class="section-title">🧭 Explore — latest from everyone</h2>
+{% include "posts/_timeline.html" %}
+{% endblock %}

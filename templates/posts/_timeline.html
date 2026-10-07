@@ -1,0 +1,83 @@
+{% comment %}Three-column layout shared by feed / explore. Expects: posts, page_obj, post_form, suggested_users{% endcomment %}
+<div class="timeline-layout">
+  <aside class="left-col">
+    {% if user.is_authenticated %}
+      <div class="card profile-mini">
+        {% include "accounts/_avatar.html" with u=user size="lg" %}
+        <h3>{{ user.get_full_name|default:user.username }}</h3>
+        <p class="muted small">@{{ user.username }}</p>
+        {% if user.profile.bio %}<p class="small bio">{{ user.profile.bio }}</p>{% endif %}
+        <div class="mini-stats">
+          <a href="{% url 'accounts:profile' user.username %}"><strong>{{ user.posts.count }}</strong><span>Posts</span></a>
+          <a href="{% url 'accounts:followers' user.username %}"><strong>{{ user.followers.count }}</strong><span>Followers</span></a>
+          <a href="{% url 'accounts:following' user.username %}"><strong>{{ user.following.count }}</strong><span>Following</span></a>
+        </div>
+        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline btn-sm btn-block">Edit profile</a>
+      </div>
+    {% else %}
+      <div class="card welcome-card">
+        <h3>Welcome to Connectly 👋</h3>
+        <p class="small muted">Share updates, follow friends and join the conversation.</p>
+        <a href="{% url 'accounts:register' %}" class="btn btn-block">Create account</a>
+        <a href="{% url 'accounts:login' %}" class="btn btn-outline btn-block">Login</a>
+      </div>
+    {% endif %}
+  </aside>
+
+  <section class="center-col">
+    {% if user.is_authenticated %}
+      <form method="post" action="{% url 'posts:post_create' %}" enctype="multipart/form-data" class="card compose">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <div class="compose-row">
+          {% include "accounts/_avatar.html" with u=user size="sm" %}
+          {{ post_form.content }}
+        </div>
+        <div id="imagePreview" class="image-preview" hidden><img src="" alt="Preview"><button type="button" class="icon-btn" id="removeImage" aria-label="Remove image">✕</button></div>
+        <div class="compose-actions">
+          <label class="file-label">📷 Photo <input type="file" name="image" accept="image/*" id="postImage" hidden></label>
+          <span class="muted small"><span id="charCount">0</span>/1000</span>
+          <button type="submit" class="btn">Post</button>
+        </div>
+      </form>
+    {% endif %}
+
+    {% if posts %}
+      {% for post in posts %}
+        {% include "posts/_post_card.html" with post=post %}
+      {% endfor %}
+      {% if page_obj.has_other_pages %}
+        <nav class="pagination" aria-label="Pagination">
+          {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">← Newer</a>{% endif %}
+          <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+          {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Older →</a>{% endif %}
+        </nav>
+      {% endif %}
+    {% else %}
+      <div class="card empty-state">
+        <p class="big">📭</p>
+        <p>{{ empty_text|default:"No posts yet." }}</p>
+        {% if show_explore_link %}<a href="{% url 'posts:explore' %}" class="btn">Explore posts</a>{% endif %}
+      </div>
+    {% endif %}
+  </section>
+
+  <aside class="right-col">
+    {% if suggested_users %}
+      <div class="card">
+        <h3 class="side-title">Who to follow</h3>
+        {% for u in suggested_users %}
+          {% include "accounts/_user_card.html" with u=u %}
+        {% endfor %}
+      </div>
+    {% endif %}
+    <div class="card tips">
+      <h3 class="side-title">Tips</h3>
+      <ul class="small muted">
+        <li>Follow people to fill your Home feed.</li>
+        <li>Use <a href="{% url 'posts:explore' %}">Explore</a> to see everyone's posts.</li>
+        <li>Tap ❤️ to like, 💬 to comment.</li>
+      </ul>
+    </div>
+  </aside>
+</div>

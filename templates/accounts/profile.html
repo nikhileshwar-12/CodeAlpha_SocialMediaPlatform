@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}@{{ profile_user.username }}{% endblock %}
+
+{% block content %}
+<div class="narrow">
+  <section class="card profile-header">
+    {% include "accounts/_avatar.html" with u=profile_user size="xl" %}
+    <div class="profile-info">
+      <div class="profile-top">
+        <div>
+          <h1>{{ profile_user.get_full_name|default:profile_user.username }}</h1>
+          <p class="muted">@{{ profile_user.username }}</p>
+        </div>
+        {% if is_own_profile %}
+          <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline btn-sm">Edit profile</a>
+        {% elif user.is_authenticated %}
+          <form method="post" action="{% url 'accounts:follow_toggle' profile_user.username %}" class="js-follow">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="submit" class="btn btn-sm {% if profile_user.is_following %}btn-outline following{% endif %}" data-following="{{ profile_user.is_following|yesno:'true,false' }}">
+              {% if profile_user.is_following %}Following{% else %}Follow{% endif %}
+            </button>
+          </form>
+        {% else %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-sm">Follow</a>
+        {% endif %}
+      </div>
+      {% if profile_user.profile.bio %}<p class="bio">{{ profile_user.profile.bio|linebreaksbr }}</p>{% endif %}
+      <p class="muted small profile-meta">
+        {% if profile_user.profile.location %}📍 {{ profile_user.profile.location }} &nbsp;{% endif %}
+        {% if profile_user.profile.website %}🔗 <a href="{{ profile_user.profile.website }}" target="_blank" rel="noopener">{{ profile_user.profile.website|cut:"https://"|cut:"http://" }}</a> &nbsp;{% endif %}
+        📅 Joined {{ profile_user.date_joined|date:"M Y" }}
+      </p>
+      <div class="profile-stats">
+        <span><strong>{{ profile_user.posts_total }}</strong> Posts</span>
+        <a href="{% url 'accounts:followers' profile_user.username %}"><strong class="js-followers-count">{{ profile_user.followers_total }}</strong> Followers</a>
+        <a href="{% url 'accounts:following' profile_user.username %}"><strong>{{ following_total }}</strong> Following</a>
+      </div>
+    </div>
+  </section>
+
+  <h2 class="section-title">Posts</h2>
+  {% for post in posts %}
+    {% include "posts/_post_card.html" with post=post %}
+  {% empty %}
+    <div class="card empty-state"><p class="big">✍️</p><p>{% if is_own_profile %}You haven't posted anything yet.{% else %}@{{ profile_user.username }} hasn't posted yet.{% endif %}</p></div>
+  {% endfor %}
+
+  {% if page_obj.has_other_pages %}
+    <nav class="pagination">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">← Newer</a>{% endif %}
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Older →</a>{% endif %}
+    </nav>
+  {% endif %}
+</div>
+{% endblock %}

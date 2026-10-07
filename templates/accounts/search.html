@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Search{% endblock %}
+
+{% block content %}
+<div class="narrow">
+  <h1 class="page-title">🔍 Find people</h1>
+  <form method="get" class="search-big">
+    <input type="search" name="q" value="{{ query }}" placeholder="Search by name or username…" autofocus>
+    <button type="submit" class="btn">Search</button>
+  </form>
+  {% if query %}
+    <div class="card">
+      <p class="muted small">{{ users|length }} result{{ users|length|pluralize }} for “{{ query }}”</p>
+      {% for u in users %}
+        {% include "accounts/_user_card.html" with u=u %}
+      {% empty %}
+        <p class="center muted" style="padding:2rem 0">No users found.</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

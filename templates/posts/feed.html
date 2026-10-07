@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+{% include "posts/_timeline.html" with empty_text="Your feed is quiet. Follow some people or share your first post!" show_explore_link=True %}
+{% endblock %}

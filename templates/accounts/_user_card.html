@@ -1,0 +1,19 @@
+{% comment %}Compact user row with a follow button. Expects `u` (annotated with followers_total / is_following).{% endcomment %}
+<div class="user-card">
+  <a href="{% url 'accounts:profile' u.username %}" class="user-card-main">
+    {% include "accounts/_avatar.html" with u=u size="sm" %}
+    <div>
+      <div class="user-name">{{ u.get_full_name|default:u.username }}</div>
+      <div class="muted small">@{{ u.username }} · {{ u.followers_total }} follower{{ u.followers_total|pluralize }}</div>
+    </div>
+  </a>
+  {% if request.user.is_authenticated and u != request.user %}
+    <form method="post" action="{% url 'accounts:follow_toggle' u.username %}" class="js-follow">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <button type="submit" class="btn btn-sm {% if u.is_following %}btn-outline following{% endif %}" data-following="{{ u.is_following|yesno:'true,false' }}">
+        {% if u.is_following %}Following{% else %}Follow{% endif %}
+      </button>
+    </form>
+  {% endif %}
+</div>

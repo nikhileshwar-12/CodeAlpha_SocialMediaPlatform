@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Home{% endblock %} · Connectly</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="{% url 'posts:feed' %}" class="brand">💬 <span>Connectly</span></a>
+
+      <form class="search-form" action="{% url 'accounts:search' %}" method="get" role="search">
+        <input type="search" name="q" placeholder="Search people…" value="{{ request.GET.q }}" aria-label="Search people">
+        <button type="submit" aria-label="Search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+      </form>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+
+      <nav class="nav-links" id="navLinks">
+        {% if user.is_authenticated %}
+          <a href="{% url 'posts:feed' %}" class="{% if request.resolver_match.url_name == 'feed' %}active{% endif %}">🏠 Home</a>
+          <a href="{% url 'posts:explore' %}" class="{% if request.resolver_match.url_name == 'explore' %}active{% endif %}">🧭 Explore</a>
+          <a href="{% url 'accounts:profile' user.username %}" class="nav-profile">
+            {% include "accounts/_avatar.html" with u=user size="xs" %}
+            <span>{{ user.first_name|default:user.username }}</span>
+          </a>
+          {% if user.is_staff %}<a href="{% url 'admin:index' %}">Admin</a>{% endif %}
+          <form method="post" action="{% url 'accounts:logout' %}" class="inline-form">
+            {% csrf_token %}
+            <button type="submit" class="link-btn">Logout</button>
+          </form>
+        {% else %}
+          <a href="{% url 'posts:explore' %}">🧭 Explore</a>
+          <a href="{% url 'accounts:login' %}">Login</a>
+          <a href="{% url 'accounts:register' %}" class="btn btn-sm">Join now</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="container page">
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="alert alert-{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      © {% now "Y" %} Connectly · A mini social network built with Django &amp; SQLite for the CodeAlpha Full Stack Internship.
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Edit profile{% endblock %}
+
+{% block content %}
+<div class="auth-card card">
+  <h1>Edit profile</h1>
+  <p class="muted">Tell the community who you are.</p>
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    <div class="avatar-edit">
+      {% include "accounts/_avatar.html" with u=user size="lg" %}
+      <div class="form-group">
+        <label for="{{ form.avatar.id_for_label }}">Profile picture</label>
+        {{ form.avatar }}
+        {% for error in form.avatar.errors %}<small class="error">{{ error }}</small>{% endfor %}
+      </div>
+    </div>
+    {% for field in form %}
+      {% if field.name != 'avatar' %}
+      <div class="form-group">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% for error in field.errors %}<small class="error">{{ error }}</small>{% endfor %}
+      </div>
+      {% endif %}
+    {% endfor %}
+    <button type="submit" class="btn btn-block btn-lg">Save changes</button>
+    <a href="{% url 'accounts:profile' user.username %}" class="btn btn-outline btn-block">Cancel</a>
+  </form>
+</div>
+{% endblock %}
